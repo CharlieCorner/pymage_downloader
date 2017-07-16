@@ -2,7 +2,9 @@
 Pymage_downloader is a cross-platform Python3 extensible tool that helps to download images and files from reddit posts.
 
 Currently supports Deviantart, Imgur, Gfycat, Instagram, i.redd.it and directly linked files. Support for additional
-sites can be easily added with plugins
+sites can be easily added with plugins.
+
+The script detects by default if a file has already been downloaded, and if so, skips it. (Although this can be overwritten.)
 
 ## Dependencies
 
