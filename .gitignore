@@ -91,7 +91,7 @@ ENV/
 
 #intelliJ
 /.idea/
-/reddit_pymage_downloader.iml
+/pymage_downloader.iml
 /src/praw.ini
 
 #Image formats
