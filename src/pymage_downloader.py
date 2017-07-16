@@ -31,14 +31,14 @@ def main():
 def get_submissions(reddit, args):
     subreddit = reddit.subreddit(args.subreddit)
 
-    if args.type == "hot":
-        submissions = subreddit.hot(limit=args.limit)
+    if args.type == "controversial":
+        submissions = subreddit.controversial(limit=args.limit)
     elif args.type == "new":
         submissions = subreddit.new(limit=args.limit)
     elif args.type == "top":
         submissions = subreddit.top(time_filter=args.period, limit=args.limit)
     else:
-        submissions = subreddit.controversial(time_filter=args.period, limit=args.limit)
+        submissions = subreddit.hot(time_filter=args.period, limit=args.limit)
 
     return submissions
 
