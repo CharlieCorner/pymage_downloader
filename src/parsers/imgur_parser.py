@@ -26,6 +26,9 @@ class ImgurParser(BaseParser):
 
             soup = BeautifulSoup(html_source, "lxml")
             matches = soup.select('img.post-image-placeholder')
+			
+			if not matches:
+				NotAbleToDownloadException("Couldn't process %s" % post.url)
 
             for m in matches:
                 image_url = m['src']
