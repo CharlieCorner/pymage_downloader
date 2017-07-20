@@ -26,29 +26,39 @@ def main():
     else:
         r = praw.Reddit()
 
-    submissions = get_submissions(r, args)
+    start_from = args.start_from
 
-    process_posts(submissions, args)
+    for page in range(0, args.page_limit):
+        LOGGER.info("Starting getting posts from page %s" % start_from)
+        submissions = get_submissions(r, args, start_from)
+        process_posts(submissions, args)
+
+        if not submissions.params["after"]:
+            LOGGER.info("Not more posts to fetch.")
+            break
+        start_from = submissions.params["after"]
 
 
-def get_submissions(reddit, args):
+def get_submissions(reddit, args, start_from = None):
+
+    params = {"after": start_from}
 
     if args.user:
         if args.should_get_upvoted:
-            submissions = reddit.redditor(args.user).upvoted(limit=args.limit)
+            submissions = reddit.redditor(args.user).upvoted(limit=args.limit, params=params)
         else:
-            submissions = reddit.redditor(args.user).saved(limit=args.limit)
+            submissions = reddit.redditor(args.user).saved(limit=args.limit, params=params)
     else:
-        subreddit = reddit.subreddit(args.subreddit)
+        subreddit = reddit.subreddit(args.subreddit, params=params)
 
         if args.type == "controversial":
-            submissions = subreddit.controversial(time_filter=args.period, limit=args.limit)
+            submissions = subreddit.controversial(time_filter=args.period, limit=args.limit, params=params)
         elif args.type == "new":
-            submissions = subreddit.new(limit=args.limit)
+            submissions = subreddit.new(limit=args.limit, params=params)
         elif args.type == "top":
-            submissions = subreddit.top(time_filter=args.period, limit=args.limit)
+            submissions = subreddit.top(time_filter=args.period, limit=args.limit, params=params)
         else:
-            submissions = subreddit.hot(limit=args.limit)
+            submissions = subreddit.hot(limit=args.limit, params=params)
 
     return submissions
 
@@ -75,7 +85,7 @@ def process_posts(submissions, args):
             download_images(images, args.folder)
         except NotAbleToDownloadException as e:
             LOGGER.error(e)
-    LOGGER.debug("The next ID is: %s" % submissions.params['after'])
+    LOGGER.info("The next post ID is: %s" % submissions.params['after'])
 
 
 def download_images(images, folder):
@@ -131,7 +141,7 @@ def _parse_args():
     parser.add_argument('--limit', '-l',
                         metavar='N',
                         type=int,
-                        default=100,
+                        default=25,
                         help="Maximum URL limit per subreddit.")
 
     parser.add_argument('--destination', '-d',
@@ -163,13 +173,25 @@ def _parse_args():
                         help="Specifies if the upvoted posts of a user should be fetched. Otherwise, get the saved "
                              "ones.")
 
-    # TODO Add pagination limit
-    # TODO Add argument to start from a particular post on
+    parser.add_argument('--page-limit', '-pl',
+                        dest="page_limit",
+                        metavar='N',
+                        type=int,
+                        default=4,
+                        help="Maximum amount of pages to get.")
+
+    parser.add_argument('--start-from', '-sf',
+                        dest="start_from",
+                        metavar='ID',
+                        help="Post ID from which to get a listing.")
 
     args = parser.parse_args()
 
     if args.user and not args.password:
         parser.error("A user was specified but a password was not, please provide complete credentials.")
+
+    if args.start_from and not args.start_from.startswith("t3_"):
+        args.start_from = "t3_" + args.start_from
 
     return args
 
