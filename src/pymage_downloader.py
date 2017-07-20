@@ -21,7 +21,10 @@ def main():
     configure_logging(args.is_debug)
     prepare_download_folder(args.folder)
 
-    r = praw.Reddit()
+    if args.user:
+        r = praw.Reddit(username=args.user, password=args.password)
+    else:
+        r = praw.Reddit()
 
     submissions = get_submissions(r, args)
 
@@ -29,16 +32,23 @@ def main():
 
 
 def get_submissions(reddit, args):
-    subreddit = reddit.subreddit(args.subreddit)
 
-    if args.type == "controversial":
-        submissions = subreddit.controversial(limit=args.limit)
-    elif args.type == "new":
-        submissions = subreddit.new(limit=args.limit)
-    elif args.type == "top":
-        submissions = subreddit.top(time_filter=args.period, limit=args.limit)
+    if args.user:
+        if args.should_get_upvoted:
+            submissions = reddit.redditor(args.user).upvoted(limit=args.limit)
+        else:
+            submissions = reddit.redditor(args.user).saved(limit=args.limit)
     else:
-        submissions = subreddit.hot(time_filter=args.period, limit=args.limit)
+        subreddit = reddit.subreddit(args.subreddit)
+
+        if args.type == "controversial":
+            submissions = subreddit.controversial(time_filter=args.period, limit=args.limit)
+        elif args.type == "new":
+            submissions = subreddit.new(limit=args.limit)
+        elif args.type == "top":
+            submissions = subreddit.top(time_filter=args.period, limit=args.limit)
+        else:
+            submissions = subreddit.hot(limit=args.limit)
 
     return submissions
 
@@ -65,6 +75,7 @@ def process_posts(submissions, args):
             download_images(images, args.folder)
         except NotAbleToDownloadException as e:
             LOGGER.error(e)
+    LOGGER.debug("The next ID is: %s" % submissions.params['after'])
 
 
 def download_images(images, folder):
@@ -102,7 +113,7 @@ def _parse_args():
 
     parser.add_argument('--subreddit', '-s',
                         default='pics',
-                        # nargs='+',
+                        # nargs='+', #TODO implement functionality for more than one subreddit
                         help="Name of the subreddit.")
 
     parser.add_argument('--period', '-p',
@@ -120,7 +131,7 @@ def _parse_args():
     parser.add_argument('--limit', '-l',
                         metavar='N',
                         type=int,
-                        default=25,
+                        default=100,
                         help="Maximum URL limit per subreddit.")
 
     parser.add_argument('--destination', '-d',
@@ -138,7 +149,29 @@ def _parse_args():
                         action="store_true",
                         help="Activates debug mode.")
 
-    return parser.parse_args()
+    parser.add_argument("--user", "-u",
+                        dest="user",
+                        help="Specifies the user name. This overrides the subreddit option.")
+
+    parser.add_argument("--pass", "-w",
+                        dest="password",
+                        help="Specifies the user name. Required if '-u' is specified.")
+
+    parser.add_argument("--upvoted",
+                        dest="should_get_upvoted",
+                        action="store_true",
+                        help="Specifies if the upvoted posts of a user should be fetched. Otherwise, get the saved "
+                             "ones.")
+
+    # TODO Add pagination limit
+    # TODO Add argument to start from a particular post on
+
+    args = parser.parse_args()
+
+    if args.user and not args.password:
+        parser.error("A user was specified but a password was not, please provide complete credentials.")
+
+    return args
 
 
 def configure_logging(is_debug=False):
