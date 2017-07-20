@@ -4,6 +4,8 @@ from parsers import gfycat_parser
 from parsers import imgur_parser
 from parsers import instagram_parser
 from parsers import ireddit_parser
+from parsers import redditupload_parser
+
 from utils.utils import *
 
 LOGGER = logging.getLogger(__name__)
@@ -16,7 +18,8 @@ class ParserFactory:
         "gfycat": gfycat_parser.Gfycat(),
         "direct_image": direct_parser.DirectFile(),
         "deviantart": deviantart_parser.Deviantart(),
-        "instagram": instagram_parser.Instagram()
+        "instagram": instagram_parser.Instagram(),
+        "redditupload": redditupload_parser.Redditupload()
     }
 
     @staticmethod
