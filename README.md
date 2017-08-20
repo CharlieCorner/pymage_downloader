@@ -12,8 +12,10 @@ The script detects by default if a file has already been downloaded, and if so, 
 - PRAW 5.0.1
 - Requests
 - Re
+- lxml
+- BeautifulSoup4
 
-All of which can be installed through `pip3 install praw requests re`
+All of which can be installed through `pip3 install praw requests re lxml beautifulsoup4`
 
 ## Prerequisites
 In order to use it, the reddit API requires that you get a reddit client ID and a client secret, refer to
