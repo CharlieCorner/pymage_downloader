@@ -28,7 +28,10 @@ class ImgurParser(BaseParser):
             matches = soup.select('img.post-image-placeholder')
             
             if not matches:
-                NotAbleToDownloadException("Couldn't process %s" % post.url)
+                matches = soup.select("img[itemprop]")
+
+            if not matches:
+                raise NotAbleToDownloadException("Couldn't process %s" % post.url)
 
             for m in matches:
                 image_url = m['src']
@@ -43,8 +46,7 @@ class ImgurParser(BaseParser):
             if image_url.endswith("gifv"):
                 image_url = image_url.replace("gifv", "mp4")
 
-            mo = self._imgur_url_pattern.search(image_url)
-            image_file = mo.group(2)
+            image_file = image_url[image_url.rfind('/') + 1:]
 
             images.append(Image(image_url, post, image_file))
 

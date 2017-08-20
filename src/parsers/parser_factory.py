@@ -29,7 +29,10 @@ class ParserFactory:
         if not url:
             raise ValueError("No URL was specified")
 
-        if tidy_up_url(url)[url.rfind(".") + 1:] in ["jpeg", "png", "jpg", "gif", "gifv", "webm", "mp4"]:
+        # Gifv links, although they are direct links, when hosted in imgur, they work as differently and need to be converted
+        #  to MP4 before attempting to download them, so we'll not use the direct parser for those and let the domain determine
+        #  the parser
+        if tidy_up_url(url)[url.rfind(".") + 1:] in ["jpeg", "png", "jpg", "gif", "webm", "mp4"]:
             LOGGER.debug("Chooosing the direct_image parser")
             return ParserFactory._PARSERS["direct_image"]
 
