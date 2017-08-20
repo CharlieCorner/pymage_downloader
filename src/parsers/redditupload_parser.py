@@ -16,7 +16,7 @@ class Redditupload(BaseParser):
         match = soup.select("img")
 
         if not match:
-            raise NotAbleToDownloadException("Wasn't able to download %s" % post.url)
+            raise NotAbleToDownloadException("Wasn't able to download %s as the image couldn't be found" % post.url)
 
         image_url = match[0]["src"]
         image_url = tidy_up_url(image_url) + ".jpg"
