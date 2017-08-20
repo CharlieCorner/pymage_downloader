@@ -33,10 +33,14 @@ def main():
         submissions = get_submissions(r, args, start_from)
         process_posts(submissions, args)
 
-        if not submissions.params["after"]:
+        next_page = submissions.params["after"]
+
+        # We might get the same next_page as the start_from if the next listing
+        #  is less than 25, the default posts per pages coming from PRAW
+        if not next_page or next_page is start_from:
             LOGGER.info("Not more posts to fetch.")
             break
-        start_from = submissions.params["after"]
+        start_from = next_page
 
 
 def get_submissions(reddit, args, start_from = None):
@@ -65,6 +69,11 @@ def get_submissions(reddit, args, start_from = None):
 
 def process_posts(submissions, args):
     for post in submissions:
+
+        if not isinstance(post, praw.models.Submission) or post.is_self:
+            LOGGER.info("Skipping post %s as it is not a submission or is a self post..." % post.id)
+            continue
+
         LOGGER.debug("Post domain: %s" % post.domain)
 
         pattern_to_search = os.path.join(args.folder, ("reddit_*_%s_*" % post.id))
@@ -91,7 +100,12 @@ def process_posts(submissions, args):
 def download_images(images, folder):
     for i in images:
         LOGGER.info('Downloading %s...' % i.url)
-        response = requests.get(i.url)
+
+        try:
+            response = requests.get(i.url)
+        except requests.exceptions.ConnectionError as ex:
+            LOGGER.error(ex)
+            raise NotAbleToDownloadException("Couldn't connect to %s, because of %s" % (i.url, str(ex)))
 
         if response.status_code == 200:
             file_name = os.path.join(folder, i.local_file_name)
