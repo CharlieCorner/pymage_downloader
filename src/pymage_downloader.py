@@ -38,7 +38,7 @@ def main():
         # We might get the same next_page as the start_from if the next listing
         #  is less than 25, the default posts per pages coming from PRAW
         if not next_page or next_page is start_from:
-            LOGGER.info("Not more posts to fetch.")
+            LOGGER.info("No more posts to fetch.")
             break
         start_from = next_page
 
