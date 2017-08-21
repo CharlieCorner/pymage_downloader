@@ -57,16 +57,20 @@ class ImgurParser(BaseParser):
             soup = BeautifulSoup(html_source, "lxml")
             match = soup.select("a.zoom")
 
-            if not match:
+            if match:
+                image_url = match[0]["href"]
+            else:
                 match = soup.select("img.post-image-placeholder")
 
                 if not match:
+                    match = soup.select("img[itemprop]")
+                if not match:
                     match = soup.select("img")
+                if not match:
+                    raise NotAbleToDownloadException("Couldn't process %s" % post.url)
 
                 image_url = match[0]['src']
 
-            else:
-                image_url = match[0]["href"]
 
             image_url = tidy_up_url(image_url)
             image_file = image_url[image_url.rfind('/') + 1:]
