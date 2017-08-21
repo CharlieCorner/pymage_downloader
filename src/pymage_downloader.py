@@ -53,7 +53,7 @@ def get_submissions(reddit, args, start_from = None):
         else:
             submissions = reddit.redditor(args.user).saved(limit=args.limit, params=params)
     else:
-        subreddit = reddit.subreddit(args.subreddit, params=params)
+        subreddit = reddit.subreddit(args.subreddit if isinstance(args.subreddit, str) else "+".join(args.subreddit))
 
         if args.type == "controversial":
             submissions = subreddit.controversial(time_filter=args.period, limit=args.limit, params=params)
@@ -134,7 +134,7 @@ def _parse_args():
 
     parser.add_argument('--subreddit', '-s',
                         default='pics',
-                        # nargs='+', #TODO implement functionality for more than one subreddit
+                        nargs='+',
                         help="Name of the subreddit.")
 
     parser.add_argument('--period', '-p',
