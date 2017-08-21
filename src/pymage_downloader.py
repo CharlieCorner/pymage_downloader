@@ -13,7 +13,7 @@ from exceptions.pymage_exceptions import NotAbleToDownloadException
 from parsers.parser_factory import ParserFactory
 
 LOGGER = logging.getLogger(__name__)
-VERSION = "0.0.1"
+VERSION = "1.0.0"
 
 
 def main():
