@@ -2,7 +2,7 @@ import datetime
 from utils.utils import limit_file_name
 
 
-class Image():
+class Image:
     _file_name_pattern = "reddit_%s_%s_%s_album_%s_%s_%s"
 
     def __init__(self, url, post, image_file):
