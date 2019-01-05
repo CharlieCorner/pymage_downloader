@@ -10,6 +10,9 @@ def tidy_up_url(url):
 
     if '?' in url:
         url = url[:url.rfind('?')]
+
+    if url.endswith("/"):
+        url = url[:-1]
     return url
 
 
