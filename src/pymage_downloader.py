@@ -43,8 +43,7 @@ def main():
         start_from = next_page
 
 
-def get_submissions(reddit, args, start_from = None):
-
+def get_submissions(reddit, args, start_from=None):
     params = {"after": start_from}
 
     if args.user:

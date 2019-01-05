@@ -24,8 +24,8 @@ class ImgurBaseParser(BaseParser):
         return tidy_up_url(url)[url.rfind(".") + 1:] in ["jpeg", "png", "jpg", "gif", "gifv"]
 
     @staticmethod
-    def get_image_from_direct_url(post: dict) -> Image:
-        image_url = tidy_up_url(post.get("url"))
+    def get_image_from_direct_url(post) -> Image:
+        image_url = tidy_up_url(post.url)
 
         if image_url.endswith("gifv"):
             image_url = image_url.replace("gifv", "mp4")
@@ -67,7 +67,7 @@ class ImgurParser(ImgurBaseParser):
                 image_file = ImgurBaseParser.get_file_name_from_url(image_url)
                 images.append(Image(image_url, post, image_file))
 
-        elif ImgurParser.is_imgur_direct_url(post.get("get")):
+        elif ImgurParser.is_imgur_direct_url(post.url):
             # This is a direct url
             images.append(ImgurParser.get_image_from_direct_url(post))
 
@@ -76,11 +76,18 @@ class ImgurParser(ImgurBaseParser):
 
             html_source = requests.get(post.url).text
             soup = BeautifulSoup(html_source, "lxml")
+
+            # Let's try first to find those tags that will hold the image inside of an href property
             match = soup.select("a.zoom")
+
+            if not match:
+                match = soup.select("link[rel=image_src]")
 
             if match:
                 image_url = match[0]["href"]
             else:
+                # If no match was found inside of an href property, let's try now with the tags that contain it inside
+                #  of a src property
                 match = soup.select("img.post-image-placeholder")
 
                 if not match:
@@ -105,11 +112,12 @@ class ImgurParser(ImgurBaseParser):
 class ImgurAPIParser(ImgurBaseParser):
 
     def get_images(self, post: dict) -> list:
+        url = post.get("url")
         # First check if it is a direct URL so that we avoid querying the API
-        if ImgurAPIParser.is_imgur_direct_url(post.get("url")):
+        if ImgurAPIParser.is_imgur_direct_url(url):
             return [ImgurAPIParser.get_image_from_direct_url(post)]
 
-        urls = ImgurAPI.get_image_urls(post)
+        urls = ImgurAPI.get_image_urls(url)
         image_entities = []
 
         for u in urls:
