@@ -22,12 +22,12 @@ IMGUR_LIMIT_WARNING_THRESHOLD = 15
 IMGUR_GALLERY = "gallery"
 IMGUR_ALBUM = "album"
 IMGUR_SIMPLE = "simple"
-IMGUR_ID = "{{imgur_id}}"
+IMGUR_ID_URL_PLACEHOLDER = "{{imgur_id}}"
 
 IMGUR_ENDPOINTS = {
     IMGUR_GALLERY: "",
-    IMGUR_ALBUM: "",
-    IMGUR_SIMPLE: "https://api.imgur.com/3/image/{{imgur_id}}"
+    IMGUR_ALBUM: f"https://api.imgur.com/3/album/{IMGUR_ID_URL_PLACEHOLDER}/images",
+    IMGUR_SIMPLE: f"https://api.imgur.com/3/image/{IMGUR_ID_URL_PLACEHOLDER}"
 }
 
 IMGUR_API_RESPONSE_HEADER_USER_LIMIT = "X-RateLimit-UserLimit"

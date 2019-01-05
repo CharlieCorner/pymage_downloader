@@ -38,18 +38,27 @@ class ImgurAPI:
     def _get_simple_imgur_url(imgur_id: str) -> list:
         imgur_endpoint = ImgurAPI._get_endpoint_url(IMGUR_SIMPLE, imgur_id)
 
-        result = ImgurAPI.get(imgur_endpoint)
+        response = ImgurAPI.get(imgur_endpoint)
 
-        if not result.get("success"):
+        if not response.get("success"):
             raise ImgurAPICommunicationException("Unsuccessful query to Imgur API for ID: %s" % imgur_id)
 
-        link = result.get("data").get("link")
+        link = response.get("data").get("link")
 
         return [link]
 
     @staticmethod
     def _get_album_urls(imgur_id: str) -> list:
-        raise NotImplementedError
+        imgur_endpoint = ImgurAPI._get_endpoint_url(IMGUR_ALBUM, imgur_id)
+
+        response = ImgurAPI.get(imgur_endpoint)
+
+        if not response.get("success"):
+            raise ImgurAPICommunicationException("Unsuccessful query to Imgur API for ID: %s" % imgur_id)
+
+        album_urls = [image_data.get("link") for image_data in response.get("data")]
+
+        return album_urls
 
     @staticmethod
     def _get_gallery_urls(imgur_id: str) -> list:
@@ -57,7 +66,7 @@ class ImgurAPI:
 
     @staticmethod
     def _get_endpoint_url(endpoint: str, imgur_id: str) -> str:
-        return IMGUR_ENDPOINTS.get(endpoint).replace(IMGUR_ID, imgur_id)
+        return IMGUR_ENDPOINTS.get(endpoint).replace(IMGUR_ID_URL_PLACEHOLDER, imgur_id)
 
     @staticmethod
     def _update_api_limits(response: requests.models.Response):
