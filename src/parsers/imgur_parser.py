@@ -111,8 +111,8 @@ class ImgurParser(ImgurBaseParser):
 
 class ImgurAPIParser(ImgurBaseParser):
 
-    def get_images(self, post: dict) -> list:
-        url = post.get("url")
+    def get_images(self, post) -> list:
+        url = post.url
         # First check if it is a direct URL so that we avoid querying the API
         if ImgurAPIParser.is_imgur_direct_url(url):
             return [ImgurAPIParser.get_image_from_direct_url(post)]
