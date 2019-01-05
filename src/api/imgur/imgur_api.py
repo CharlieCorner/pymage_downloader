@@ -30,7 +30,7 @@ class ImgurAPI:
                 # This is a URL with no gallery, album or extension
                 image_urls = ImgurAPI._get_simple_imgur_url(imgur_id)
         except ImgurAPICommunicationException:
-            raise NotAbleToDownloadException("Couldn't process %s" % url)
+            raise NotAbleToDownloadException(f"Couldn't process: {url}")
 
         return image_urls
 
@@ -41,7 +41,7 @@ class ImgurAPI:
         response = ImgurAPI.get(imgur_endpoint)
 
         if not response.get("success"):
-            raise ImgurAPICommunicationException("Unsuccessful query to Imgur API for ID: %s" % imgur_id)
+            raise ImgurAPICommunicationException(f"Unsuccessful query to Imgur API for ID: {imgur_id}")
 
         link = response.get("data").get("link")
 
@@ -54,7 +54,7 @@ class ImgurAPI:
         response = ImgurAPI.get(imgur_endpoint)
 
         if not response.get("success"):
-            raise ImgurAPICommunicationException("Unsuccessful query to Imgur API for ID: %s" % imgur_id)
+            raise ImgurAPICommunicationException(f"Unsuccessful query to Imgur API for ID: {imgur_id}")
 
         album_urls = [image_data.get("link") for image_data in response.get("data")]
 
@@ -62,7 +62,16 @@ class ImgurAPI:
 
     @staticmethod
     def _get_gallery_urls(imgur_id: str) -> list:
-        raise NotImplementedError
+        imgur_endpoint = ImgurAPI._get_endpoint_url(IMGUR_GALLERY, imgur_id)
+
+        response = ImgurAPI.get(imgur_endpoint)
+
+        if not response.get("success"):
+            raise ImgurAPICommunicationException(f"Unsuccessful query to Imgur API for ID: {imgur_id}")
+
+        gallery_urls = [image_data.get("link") for image_data in response.get("data").get("images")]
+
+        return gallery_urls
 
     @staticmethod
     def _get_endpoint_url(endpoint: str, imgur_id: str) -> str:
@@ -70,12 +79,19 @@ class ImgurAPI:
 
     @staticmethod
     def _update_api_limits(response: requests.models.Response):
+        reported_user_limit = int(response.headers[IMGUR_API_RESPONSE_HEADER_USER_LIMIT])
+        reported_user_remaining = int(response.headers[IMGUR_API_RESPONSE_HEADER_USER_REMAINING])
+        reported_user_reset_ts = int(response.headers[IMGUR_API_RESPONSE_HEADER_USER_RESET])
+
+        LOGGER.debug(f"Imgur API Remaining calls: {reported_user_remaining}")
+        LOGGER.debug(f"Imgur API Next Limit Reset Timestamp: {reported_user_reset_ts}")
+
         IMGUR_PARAMS[IMGUR_PARAMS_API_CALLS_LIMITS][IMGUR_PARAMS_API_CALLS_LIMITS_USER_LIMIT] \
-            = int(response.headers[IMGUR_API_RESPONSE_HEADER_USER_LIMIT])
+            = reported_user_limit
         IMGUR_PARAMS[IMGUR_PARAMS_API_CALLS_LIMITS][IMGUR_PARAMS_API_CALLS_LIMITS_USER_REMAINING] \
-            = int(response.headers[IMGUR_API_RESPONSE_HEADER_USER_REMAINING])
+            = reported_user_remaining
         IMGUR_PARAMS[IMGUR_PARAMS_API_CALLS_LIMITS][IMGUR_PARAMS_API_CALLS_LIMITS_USER_RESET_TIMESTAMP] \
-            = int(response.headers[IMGUR_API_RESPONSE_HEADER_USER_RESET])
+            = reported_user_reset_ts
 
     @staticmethod
     def _check_api_limits():
@@ -101,7 +117,7 @@ class ImgurAPI:
 
         # The Imgur Client ID must be set before we can do anything else
         if not IMGUR_PARAMS.get(IMGUR_PARAMS_CLIENT_ID):
-            raise ImgurAPICommunicationException("The Client ID for the Imgur API is not set! Skipping %s" % endpoint)
+            raise ImgurAPICommunicationException(f"The Client ID for the Imgur API is not set! Skipping {endpoint}")
 
         # The following will throw an Exception if the limits have been met and will prevent any further call to be made
         #  to the Imgur API
@@ -128,7 +144,7 @@ class ImgurAPI:
 
         except requests.exceptions.ConnectionError as ex:
             LOGGER.error(ex)
-            raise ImgurAPICommunicationException("Couldn't connect to %s, because of %s" % (endpoint, str(ex)))
+            raise ImgurAPICommunicationException(f"Couldn't connect to {endpoint}, because of {str(ex)}")
 
 # Sample Imgur Response
 # {

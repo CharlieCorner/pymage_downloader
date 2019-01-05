@@ -25,7 +25,7 @@ IMGUR_SIMPLE = "simple"
 IMGUR_ID_URL_PLACEHOLDER = "{{imgur_id}}"
 
 IMGUR_ENDPOINTS = {
-    IMGUR_GALLERY: "",
+    IMGUR_GALLERY: f"https://api.imgur.com/3/gallery/album/{IMGUR_ID_URL_PLACEHOLDER}",
     IMGUR_ALBUM: f"https://api.imgur.com/3/album/{IMGUR_ID_URL_PLACEHOLDER}/images",
     IMGUR_SIMPLE: f"https://api.imgur.com/3/image/{IMGUR_ID_URL_PLACEHOLDER}"
 }
