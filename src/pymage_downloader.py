@@ -82,7 +82,7 @@ def process_posts(submissions, args):
             LOGGER.info("Skipping post %s, we already have its images..." % post.id)
             continue
 
-        parser = ParserFactory.get_parser(post.url)
+        parser = ParserFactory.get_parser(post.url, args)
 
         if not parser:
             LOGGER.warning("The domain in %s is not supported..." % post.url)
@@ -163,6 +163,11 @@ def _parse_args():
                         dest="should_overwrite",
                         action="store_true",
                         help="Specifies if files should be overwritten if they were already downloaded.")
+
+    parser.add_argument("--imgur-html", "-ih",
+                        dest="should_parse_imgur_html",
+                        action="store_true",
+                        help="Forces the use of the deprecated Imgur HTML parser instead of the Imgur API Parser.")
 
     parser.add_argument("--debug",
                         dest="is_debug",

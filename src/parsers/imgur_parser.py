@@ -41,7 +41,7 @@ class ImgurBaseParser(BaseParser):
         return url[url.rfind('/') + 1:]
 
 
-class ImgurParser(ImgurBaseParser):
+class ImgurHTMLParser(ImgurBaseParser):
     def __init__(self) -> None:
         self._imgur_url_pattern = re.compile(r"(imgur.com/(.*))(\?.*)?")
 
@@ -67,9 +67,9 @@ class ImgurParser(ImgurBaseParser):
                 image_file = ImgurBaseParser.get_file_name_from_url(image_url)
                 images.append(Image(image_url, post, image_file))
 
-        elif ImgurParser.is_imgur_direct_url(post.url):
+        elif ImgurHTMLParser.is_imgur_direct_url(post.url):
             # This is a direct url
-            images.append(ImgurParser.get_image_from_direct_url(post))
+            images.append(ImgurHTMLParser.get_image_from_direct_url(post))
 
         elif "imgur.com/" in post.url:
             # This is an Imgur page with a single image
@@ -100,7 +100,7 @@ class ImgurParser(ImgurBaseParser):
                 image_url = match[0]['src']
 
             image_url = tidy_up_url(image_url)
-            image_file = ImgurParser.get_file_name_from_url(image_url)
+            image_file = ImgurHTMLParser.get_file_name_from_url(image_url)
 
             images.append(Image(image_url, post, image_file))
         else:
