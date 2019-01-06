@@ -1,5 +1,6 @@
 import datetime
-from utils.utils import limit_file_name
+
+from utils.utils import limit_file_name, extract_imgur_id_from_url
 
 
 class Image:
@@ -13,10 +14,8 @@ class Image:
         self.domain = post.domain
         self.created = datetime.datetime.fromtimestamp(post.created).strftime("%y%m%d")
 
-        if "/a/" in post.url:
-            self.album_id = post.url[post.url.index("/a/") + 3:]
-        elif "/gallery/" in post.url:
-            self.album_id = post.url[post.url.index("/gallery/") + 9:]
+        if "/a/" in post.url or "/gallery/" in post.url:
+            self.album_id = extract_imgur_id_from_url(post.url)
         else:
             self.album_id = None
 

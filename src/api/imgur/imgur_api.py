@@ -6,7 +6,7 @@ import requests
 
 from api.imgur import *
 from exceptions.pymage_exceptions import NotAbleToDownloadException, ImgurAPICommunicationException
-from utils.utils import tidy_up_url
+from utils.utils import extract_imgur_id_from_url
 
 LOGGER = logging.getLogger(__name__)
 
@@ -16,8 +16,7 @@ class ImgurAPI:
     @staticmethod
     def get_image_urls(url: str) -> list:
 
-        url = tidy_up_url(url)
-        imgur_id = url[url.rfind("/") + 1:]
+        imgur_id = extract_imgur_id_from_url(url)
 
         try:
             if "/gallery/" in url:
