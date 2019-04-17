@@ -1,6 +1,6 @@
 import datetime
 
-from utils.utils import limit_file_name
+from utils.utils import limit_file_name, extract_imgur_id_from_url
 
 
 class BaseImage:
