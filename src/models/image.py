@@ -3,6 +3,14 @@ import datetime
 from utils.utils import limit_file_name, extract_imgur_id_from_url
 
 
+class BaseImage:
+
+    def __init__(self, post_id: str, url: str, image_filename: str):
+        self.post_id = post_id
+        self.url = url
+        self.image_file = limit_file_name(image_filename)
+
+
 class Image:
     _file_name_pattern = "reddit_%s_%s_%s_album_%s_%s_%s"
 
@@ -21,3 +29,12 @@ class Image:
 
         self.local_file_name = self._file_name_pattern % (
             self.created, self.sub_display_name, self.post_id, self.album_id, self.domain, self.image_file)
+
+
+class FourChanImage(BaseImage):
+    _file_name_pattern = "4chan_%s_%s"
+
+    def __init__(self, url: str, image_filename: str):
+        super().__init__(image_filename[:image_filename.rfind('.')], url, image_filename)
+        self.created = datetime.datetime.now().strftime("%y%m%d")
+        self.local_file_name = self._file_name_pattern % (self.created, self.image_file)

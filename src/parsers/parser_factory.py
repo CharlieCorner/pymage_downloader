@@ -1,4 +1,4 @@
-from parsers import base_parser
+from parsers import base_parser, fourchan_parser
 from parsers import deviantart_parser
 from parsers import direct_parser
 from parsers import gfycat_parser
@@ -20,7 +20,8 @@ class ParserFactory:
         "direct_image": direct_parser.DirectFile(),
         "deviantart": deviantart_parser.Deviantart(),
         "instagram": instagram_parser.Instagram(),
-        "redditupload": redditupload_parser.Redditupload()
+        "redditupload": redditupload_parser.Redditupload(),
+        "4chan": fourchan_parser.FourChan()
     }
 
     @staticmethod
