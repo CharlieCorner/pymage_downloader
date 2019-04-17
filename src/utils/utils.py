@@ -8,9 +8,13 @@ from exceptions.pymage_exceptions import NotAbleToDownloadException
 LOGGER = logging.getLogger(__name__)
 
 
+def get_file_name_from_url(url: str) -> str:
+    return url[url.rfind('/') + 1:]
+
+
 def extract_imgur_id_from_url(url: str) -> str:
     url = tidy_up_url(url)
-    imgur_id = url[url.rfind("/") + 1:]
+    imgur_id = get_file_name_from_url(url)
 
     return imgur_id
 
