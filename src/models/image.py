@@ -1,6 +1,6 @@
 import datetime
 
-from utils.utils import limit_file_name, extract_imgur_id_from_url
+from utils.utils import limit_file_name
 
 
 class BaseImage:
@@ -9,6 +9,9 @@ class BaseImage:
         self.post_id = post_id
         self.url = url
         self.image_file = limit_file_name(image_filename)
+        self.sub_display_name = None
+        self.created = datetime.datetime.now().strftime("%y%m%d")
+        self.local_file_name = None
 
 
 class Image:
@@ -32,9 +35,15 @@ class Image:
 
 
 class FourChanImage(BaseImage):
-    _file_name_pattern = "4chan_%s_%s"
+    _file_name_pattern = "4chan_%s_%s_%s"
+
+    @staticmethod
+    def extract_board_from_url(url: str) -> str:
+        # Let's get the first element after the subdomain in the URL
+        board = url[url.find("org") + 4:].split("/")[0]
+        return board
 
     def __init__(self, url: str, image_filename: str):
         super().__init__(image_filename[:image_filename.rfind('.')], url, image_filename)
-        self.created = datetime.datetime.now().strftime("%y%m%d")
-        self.local_file_name = self._file_name_pattern % (self.created, self.image_file)
+        self.sub_display_name = FourChanImage.extract_board_from_url(url)
+        self.local_file_name = self._file_name_pattern % (self.created, self.sub_display_name, self.image_file)

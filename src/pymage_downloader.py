@@ -29,7 +29,7 @@ def _parse_args():
     """Parse args with argparse
     :returns: args
     """
-    parser = ArgumentParser(description=f"Pymage Downloader %{VERSION} - Download pics from different sites")
+    parser = ArgumentParser(description=f"Pymage Downloader {VERSION} - Download pics from different sites")
 
     parser.add_argument('--site',
                         default='reddit',
