@@ -1,19 +1,14 @@
 #!/usr/bin/python3
 
-import glob
 import logging
-import os
 import sys
 from argparse import ArgumentParser
 
-import praw
-import requests
-
-from exceptions.pymage_exceptions import NotAbleToDownloadException
-from parsers.parser_factory import ParserFactory
+from drivers.reddit import reddit_downloader
+from utils.utils import prepare_download_folder
 
 LOGGER = logging.getLogger(__name__)
-VERSION = "1.0.0"
+VERSION = "2.0.0"
 
 
 def main():
@@ -21,115 +16,24 @@ def main():
     configure_logging(args.is_debug)
     prepare_download_folder(args.folder)
 
-    if args.user:
-        r = praw.Reddit(username=args.user, password=args.password)
+    if args.site == "reddit":
+        reddit_downloader(args)
+    elif args.site == "4chan":
+        raise NotImplementedError
     else:
-        r = praw.Reddit()
-
-    start_from = args.start_from
-
-    for page in range(0, args.page_limit):
-        LOGGER.info("Starting getting posts from page %s" % start_from)
-        submissions = get_submissions(r, args, start_from)
-        process_posts(submissions, args)
-
-        next_page = submissions.params["after"]
-
-        # We might get the same next_page as the start_from if the next listing
-        #  is less than 25, the default posts per pages coming from PRAW
-        if not next_page or next_page is start_from:
-            LOGGER.info("No more posts to fetch.")
-            break
-        start_from = next_page
-
-
-def get_submissions(reddit, args, start_from=None):
-    params = {"after": start_from}
-
-    if args.user:
-        if args.should_get_upvoted:
-            submissions = reddit.redditor(args.user).upvoted(limit=args.limit, params=params)
-        else:
-            submissions = reddit.redditor(args.user).saved(limit=args.limit, params=params)
-    else:
-        subreddit = reddit.subreddit(args.subreddit if isinstance(args.subreddit, str) else "+".join(args.subreddit))
-
-        if args.type == "controversial":
-            submissions = subreddit.controversial(time_filter=args.period, limit=args.limit, params=params)
-        elif args.type == "new":
-            submissions = subreddit.new(limit=args.limit, params=params)
-        elif args.type == "top":
-            submissions = subreddit.top(time_filter=args.period, limit=args.limit, params=params)
-        else:
-            submissions = subreddit.hot(limit=args.limit, params=params)
-
-    return submissions
-
-
-def process_posts(submissions, args):
-    for post in submissions:
-
-        if not isinstance(post, praw.models.Submission) or post.is_self:
-            LOGGER.info("Skipping post %s as it is not a submission or is a self post..." % post.id)
-            continue
-
-        LOGGER.debug("Post domain: %s" % post.domain)
-
-        pattern_to_search = os.path.join(args.folder, ("reddit_*_%s_*" % post.id))
-        LOGGER.debug("Pattern to search: %s" % pattern_to_search)
-
-        if not args.should_overwrite and len(glob.glob(pattern_to_search)) > 0:
-            LOGGER.info("Skipping post %s, we already have its images..." % post.id)
-            continue
-
-        parser = ParserFactory.get_parser(post.url, args)
-
-        if not parser:
-            LOGGER.warning("The domain in %s is not supported..." % post.url)
-            continue
-
-        try:
-            images = parser.get_images(post)
-            download_images(images, args.folder)
-        except NotAbleToDownloadException as e:
-            LOGGER.error(e)
-    LOGGER.info("The next post ID is: %s" % submissions.params['after'])
-
-
-def download_images(images, folder):
-    for i in images:
-        LOGGER.info('Downloading %s...' % i.url)
-
-        try:
-            with requests.get(i.url) as response:
-                if response.ok:
-                    file_name = os.path.join(folder, i.local_file_name)
-                    LOGGER.info('Saving %s...' % file_name)
-
-                    with open(file_name, 'wb') as fo:
-                        for chunk in response.iter_content(4096):
-                            fo.write(chunk)
-
-                else:
-                    raise NotAbleToDownloadException(
-                        "Failed to download, we got an HTTP %i error for %s" % (response.status_code, i.url))
-
-        except requests.exceptions.ConnectionError as ex:
-            LOGGER.error(ex)
-            raise NotAbleToDownloadException("Couldn't connect to %s, because of %s" % (i.url, str(ex)))
-
-
-def prepare_download_folder(folder):
-    if not os.path.exists(folder):
-        LOGGER.debug("Creating folder %s" % folder)
-        os.makedirs(folder)
+        raise NotImplementedError
 
 
 def _parse_args():
     """Parse args with argparse
     :returns: args
     """
-    parser = ArgumentParser(description="Pymage Downloader %s - Download pics from subreddit posts" % VERSION)
+    parser = ArgumentParser(description=f"Pymage Downloader %{VERSION} - Download pics from different sites")
+
+    parser.add_argument('--site',
+                        default='reddit',
+                        choices=['reddit', '4chan'],
+                        help="Choose from which site you'd like to download images")
 
     parser.add_argument('--subreddit', '-s',
                         default='pics',
