@@ -4,6 +4,7 @@ import logging
 import sys
 from argparse import ArgumentParser
 
+from drivers.fourchan import fourchan_downloader
 from drivers.reddit import reddit_downloader
 from utils.utils import prepare_download_folder
 
@@ -19,7 +20,7 @@ def main():
     if args.site == "reddit":
         reddit_downloader(args)
     elif args.site == "4chan":
-        raise NotImplementedError
+        fourchan_downloader(args)
     else:
         raise NotImplementedError
 
@@ -34,6 +35,9 @@ def _parse_args():
                         default='reddit',
                         choices=['reddit', '4chan'],
                         help="Choose from which site you'd like to download images")
+
+    parser.add_argument('--url',
+                        help="If the 4chan downloader was selected, the url of the thread to parse.")
 
     parser.add_argument('--subreddit', '-s',
                         default='pics',
@@ -106,11 +110,18 @@ def _parse_args():
 
     args = parser.parse_args()
 
-    if args.user and not args.password:
-        parser.error("A user was specified but a password was not, please provide complete credentials.")
+    if args.site == "reddit":
 
-    if args.start_from and not args.start_from.startswith("t3_"):
-        args.start_from = "t3_" + args.start_from
+        if args.user and not args.password:
+            parser.error("A user was specified but a password was not, please provide complete credentials.")
+
+        if args.start_from and not args.start_from.startswith("t3_"):
+            args.start_from = "t3_" + args.start_from
+
+    elif args.site == "4chan":
+
+        if not args.url:
+            parser.error("4chan mode selected, but no URL for the 4chan thread was provided.")
 
     return args
 
