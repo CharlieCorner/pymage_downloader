@@ -13,7 +13,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def reddit_downloader(args: Namespace):
-    if args.user:
+    if args.reddit_mode == "user":
         r = praw.Reddit(username=args.user, password=args.password)
     else:
         r = praw.Reddit()
@@ -38,7 +38,7 @@ def reddit_downloader(args: Namespace):
 def get_submissions(reddit, args, start_from=None):
     params = {"after": start_from}
 
-    if args.user:
+    if args.reddit_mode == "user":
         if args.should_get_upvoted:
             submissions = reddit.redditor(args.user).upvoted(limit=args.limit, params=params)
         else:

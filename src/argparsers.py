@@ -30,9 +30,6 @@ def parse_args():
 
     if args.site == "reddit":
 
-        if args.user and not args.password:
-            parser.error("A user was specified but a password was not, please provide complete credentials.")
-
         if args.start_from and not args.start_from.startswith("t3_"):
             args.start_from = "t3_" + args.start_from
 
@@ -46,32 +43,25 @@ def parse_args():
 
 def build_site_subparsers(parser: ArgumentParser):
     site_subparsers = parser.add_subparsers(title='Sites',
-                                       description="Choose from which site you'd like to download images",
-                                       help='supported sites',
-                                       dest="site")
+                                            description="Choose from which site you'd like to download images",
+                                            help='supported sites',
+                                            dest="site")
+    site_subparsers.required = True
+
     reddit_subparser(site_subparsers)
     fourchan_subparser(site_subparsers)
 
 
 def reddit_subparser(site_subparsers):
     reddit_argparser = site_subparsers.add_parser('reddit')
-    reddit_argparser.add_argument('--subreddit', '-s',
-                                  default='pics',
-                                  nargs='+',
-                                  help="Name of the subreddit.")
 
-    reddit_argparser.add_argument('--period', '-p',
-                                  default='week',
-                                  choices=['hour', 'day', 'week', 'month', 'year', 'all'],
-                                  help="[h]our, [d]ay, [w]eek, [m]onth, [y]ear, or [a]ll. Period "
-                                       "of time from which you want images. Only works for top and controversial")
+    reddit_modes = reddit_argparser.add_subparsers(title='Reddit Modes',
+                                                   description="Choose if you'd like to manipulate a subreddit "
+                                                               "or a user's posts",
+                                                   dest="reddit_mode",
+                                                   help='reddit modes')
 
-    reddit_argparser.add_argument('--type', '-t',
-                                  default='hot',
-                                  choices=['hot', 'top', 'new', 'controversial'],
-                                  help="[hot], [top], [new], [controversial]. Type of listing of posts "
-                                       "in a subreddit.")
-
+    # General options for Reddit
     reddit_argparser.add_argument('--limit', '-l',
                                   metavar='N',
                                   type=int,
@@ -84,20 +74,6 @@ def reddit_subparser(site_subparsers):
                                   help="Forces the use of the deprecated Imgur HTML parser "
                                        "instead of the Imgur API Parser.")
 
-    reddit_argparser.add_argument("--user", "-u",
-                                  dest="user",
-                                  help="Specifies the user name. This overrides the subreddit option.")
-
-    reddit_argparser.add_argument("--pass", "-w",
-                                  dest="password",
-                                  help="Specifies the user name. Required if '-u' is specified.")
-
-    reddit_argparser.add_argument("--upvoted",
-                                  dest="should_get_upvoted",
-                                  action="store_true",
-                                  help="Specifies if the upvoted posts of a user should be fetched. Otherwise, "
-                                       "get the saved ones.")
-
     reddit_argparser.add_argument('--page-limit', '-pl',
                                   dest="page_limit",
                                   metavar='N',
@@ -109,6 +85,44 @@ def reddit_subparser(site_subparsers):
                                   dest="start_from",
                                   metavar='ID',
                                   help="Post ID from which to get a listing.")
+
+    # Subreddit mode
+    subreddit_mode = reddit_modes.add_parser("subreddit",
+                                             description="Manipulate subreddits posts",
+                                             help='subreddit options')
+    subreddit_mode.add_argument('subreddit',
+                                nargs='+',
+                                metavar="SUBREDDITS",
+                                help="List of the subreddits.")
+
+    subreddit_mode.add_argument('--period', '-p',
+                                default='week',
+                                choices=['hour', 'day', 'week', 'month', 'year', 'all'],
+                                help="[h]our, [d]ay, [w]eek, [m]onth, [y]ear, or [a]ll. Period "
+                                     "of time from which you want images. Only works for top and controversial")
+
+    subreddit_mode.add_argument('--type', '-t',
+                                default='hot',
+                                choices=['hot', 'top', 'new', 'controversial'],
+                                help="[hot], [top], [new], [controversial]. Type of listing of posts "
+                                     "in a subreddit.")
+
+    # User mode
+    user_mode = reddit_modes.add_parser("user",
+                                        description="Manipulate a user's posts",
+                                        help='user options')
+    user_mode.add_argument("user",
+                           help="Specifies the user name.")
+
+    user_mode.add_argument("password",
+                           default="",
+                           help="Specifies the user name.")
+
+    user_mode.add_argument("--upvoted",
+                           dest="should_get_upvoted",
+                           action="store_true",
+                           help="Specifies if the upvoted posts of a user should be fetched. Otherwise, "
+                                "get the saved ones.")
 
 
 def fourchan_subparser(site_subparsers):
