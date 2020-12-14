@@ -33,10 +33,10 @@ def parse_args():
         if args.start_from and not args.start_from.startswith("t3_"):
             args.start_from = "t3_" + args.start_from
 
-    elif args.site == "4chan":
+    elif args.site in ["4chan", "imgur"]:
 
         if not args.url:
-            parser.error("4chan mode selected, but no URL for the 4chan thread was provided.")
+            parser.error(f"{args.site} mode selected, but no URL was provided.")
 
     return args
 
