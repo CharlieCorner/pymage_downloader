@@ -77,7 +77,6 @@ def process_posts(submissions, args):
         parser = ParserFactory.get_parser(post.url, args)
 
         if not parser:
-            LOGGER.warning("The domain in %s is not supported..." % post.url)
             continue
 
         try:

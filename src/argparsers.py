@@ -33,11 +33,6 @@ def parse_args():
         if args.start_from and not args.start_from.startswith("t3_"):
             args.start_from = "t3_" + args.start_from
 
-    elif args.site in ["4chan", "imgur"]:
-
-        if not args.url:
-            parser.error(f"{args.site} mode selected, but no URL was provided.")
-
     return args
 
 
@@ -49,8 +44,7 @@ def build_site_subparsers(parser: ArgumentParser):
     site_subparsers.required = True
 
     reddit_subparser(site_subparsers)
-    fourchan_subparser(site_subparsers)
-    imgursite_subparser(site_subparsers)
+    url_parser(site_subparsers)
 
 
 def reddit_subparser(site_subparsers):
@@ -126,15 +120,9 @@ def reddit_subparser(site_subparsers):
                                 "get the saved ones.")
 
 
-def fourchan_subparser(site_subparsers):
-    fourchan_argparser = site_subparsers.add_parser('4chan')
-    fourchan_argparser.add_argument('url',
-                                    metavar="URL",
-                                    help="The URL to the thread to parse.")
+def url_parser(site_subparsers):
+    url_argparser = site_subparsers.add_parser('url')
+    url_argparser.add_argument('url',
+                               metavar="URL",
+                               help="The URL from which to download images.")
 
-
-def imgursite_subparser(site_subparsers):
-    imgursite_argparser = site_subparsers.add_parser('imgur')
-    imgursite_argparser.add_argument('url',
-                                     metavar="URL",
-                                     help="The URL to the Imgur gallery or page to download pictures from.")

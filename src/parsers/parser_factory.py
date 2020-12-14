@@ -50,4 +50,7 @@ class ParserFactory:
                 LOGGER.debug(f"Choosing the {key} parser")
                 return ParserFactory._PARSERS[key]
 
+        if not parser:
+            LOGGER.warning("The domain in %s is not supported..." % url)
+
         return parser
