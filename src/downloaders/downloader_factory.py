@@ -1,8 +1,8 @@
 import logging
 from argparse import Namespace
 
-from drivers import downloader
-from drivers.downloader import Downloader
+from downloaders import downloader
+from downloaders.downloader import Downloader
 
 LOGGER = logging.getLogger(__name__)
 

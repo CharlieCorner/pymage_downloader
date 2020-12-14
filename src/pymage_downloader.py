@@ -4,8 +4,8 @@ import logging
 import sys
 
 from argparsers import parse_args
-from drivers.downloader_factory import DownloaderFactory
-from drivers.reddit import reddit_downloader
+from downloaders.downloader_factory import DownloaderFactory
+from downloaders.reddit import reddit_downloader
 from utils.utils import prepare_download_folder
 
 LOGGER = logging.getLogger(__name__)
