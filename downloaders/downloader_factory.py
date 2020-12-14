@@ -31,6 +31,10 @@ class DownloaderFactory:
         if not args.url:
             raise ValueError("No URL was specified")
 
+        if "reddit" in args.url:
+            LOGGER.error(f"{args.url} seems to be hosted on reddit, please switch to reddit mode to download images!")
+            raise ValueError("Reddit downloading not supported in URL mode!")
+
         for key in DownloaderFactory._DOWNLOADERS:
 
             if key in args.url:
