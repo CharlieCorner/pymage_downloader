@@ -1,4 +1,4 @@
-from models.image import Image
+from models.image import RedditPostImage
 from parsers.base_parser import BaseParser
 from utils.utils import *
 
@@ -20,6 +20,6 @@ class Gfycat(BaseParser):
 
         image_file = image_url[image_url.rfind('/') + 1:]
 
-        images.append(Image(image_url, post, image_file))
+        images.append(RedditPostImage(image_url, post, image_file))
 
         return images

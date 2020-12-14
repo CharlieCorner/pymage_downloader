@@ -14,14 +14,13 @@ class BaseImage:
         self.local_file_name = None
 
 
-class Image:
+class RedditPostImage(BaseImage):
     _file_name_pattern = "reddit_%s_%s_%s_album_%s_%s_%s"
 
     def __init__(self, url, post, image_file):
-        self.post_id = post.id
-        self.url = url
+        super().__init__(post.id, url, image_file)
+
         self.sub_display_name = post.subreddit.display_name
-        self.image_file = limit_file_name(image_file)
         self.domain = post.domain
         self.created = datetime.datetime.fromtimestamp(post.created).strftime("%y%m%d")
 

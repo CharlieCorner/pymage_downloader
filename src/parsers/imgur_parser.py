@@ -1,12 +1,10 @@
 import re
 from abc import abstractmethod
 
-import requests
 from bs4 import BeautifulSoup
 
 from api.imgur.imgur_api import ImgurAPI
-from exceptions.pymage_exceptions import NotAbleToDownloadException
-from models.image import Image
+from models.image import RedditPostImage
 from parsers.base_parser import BaseParser
 from utils.utils import *
 
@@ -24,7 +22,7 @@ class ImgurBaseParser(BaseParser):
         return tidy_up_url(url)[url.rfind(".") + 1:] in ["jpeg", "png", "jpg", "gif", "gifv"]
 
     @staticmethod
-    def get_image_from_direct_url(post) -> Image:
+    def get_image_from_direct_url(post) -> RedditPostImage:
         image_url = tidy_up_url(post.url)
 
         if image_url.endswith("gifv"):
@@ -32,7 +30,7 @@ class ImgurBaseParser(BaseParser):
 
         image_file = ImgurBaseParser.get_file_name_from_url(image_url)
 
-        image = Image(image_url, post, image_file)
+        image = RedditPostImage(image_url, post, image_file)
 
         return image
 
@@ -65,7 +63,7 @@ class ImgurHTMLParser(ImgurBaseParser):
             for m in matches:
                 image_url = tidy_up_url(m['src'])
                 image_file = ImgurBaseParser.get_file_name_from_url(image_url)
-                images.append(Image(image_url, post, image_file))
+                images.append(RedditPostImage(image_url, post, image_file))
 
         elif ImgurHTMLParser.is_imgur_direct_url(post.url):
             # This is a direct url
@@ -102,7 +100,7 @@ class ImgurHTMLParser(ImgurBaseParser):
             image_url = tidy_up_url(image_url)
             image_file = ImgurHTMLParser.get_file_name_from_url(image_url)
 
-            images.append(Image(image_url, post, image_file))
+            images.append(RedditPostImage(image_url, post, image_file))
         else:
             raise NotAbleToDownloadException("Couldn't process %s" % post.url)
 
@@ -121,6 +119,6 @@ class ImgurAPIParser(ImgurBaseParser):
         image_entities = []
 
         for u in urls:
-            image_entities.append(Image(u, post, ImgurAPIParser.get_file_name_from_url(u)))
+            image_entities.append(RedditPostImage(u, post, ImgurAPIParser.get_file_name_from_url(u)))
 
         return image_entities

@@ -1,8 +1,4 @@
-import requests
-from bs4 import BeautifulSoup
-
-from exceptions.pymage_exceptions import NotAbleToDownloadException
-from models.image import Image
+from models.image import RedditPostImage
 from parsers.base_parser import BaseParser
 from utils.utils import tidy_up_url
 
@@ -15,6 +11,6 @@ class Redditupload(BaseParser):
         image_file = tidy_up_url(image_url) + ".jpg"
         image_file = image_file[image_file.rfind('/') + 1:]
 
-        images.append(Image(image_url, post, image_file))
+        images.append(RedditPostImage(image_url, post, image_file))
 
         return images

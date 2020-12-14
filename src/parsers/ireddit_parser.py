@@ -1,4 +1,4 @@
-from models.image import Image
+from models.image import RedditPostImage
 from parsers.base_parser import BaseParser
 
 
@@ -8,6 +8,6 @@ class IReddIt(BaseParser):
 
         image_file = post.url[post.url.rfind('/') + 1:]
 
-        images.append(Image(post.url, post, image_file))
+        images.append(RedditPostImage(post.url, post, image_file))
 
         return images
