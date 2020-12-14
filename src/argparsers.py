@@ -50,6 +50,7 @@ def build_site_subparsers(parser: ArgumentParser):
 
     reddit_subparser(site_subparsers)
     fourchan_subparser(site_subparsers)
+    imgursite_subparser(site_subparsers)
 
 
 def reddit_subparser(site_subparsers):
@@ -130,3 +131,10 @@ def fourchan_subparser(site_subparsers):
     fourchan_argparser.add_argument('url',
                                     metavar="URL",
                                     help="The URL to the thread to parse.")
+
+
+def imgursite_subparser(site_subparsers):
+    imgursite_argparser = site_subparsers.add_parser('imgur')
+    imgursite_argparser.add_argument('url',
+                                     metavar="URL",
+                                     help="The URL to the Imgur gallery or page to download pictures from.")

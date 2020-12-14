@@ -9,7 +9,6 @@ class BaseImage:
         self.post_id = post_id
         self.url = url
         self.image_file = limit_file_name(image_filename)
-        self.sub_display_name = None
         self.created = datetime.datetime.now().strftime("%y%m%d")
         self.local_file_name = None
 
@@ -46,3 +45,20 @@ class FourChanImage(BaseImage):
         super().__init__(image_filename[:image_filename.rfind('.')], url, image_filename)
         self.sub_display_name = FourChanImage.extract_board_from_url(url)
         self.local_file_name = self._file_name_pattern % (self.created, self.sub_display_name, self.image_file)
+
+
+class ImgurImage(BaseImage):
+
+    _file_name_pattern = "imgur_%s_%s"
+
+    def __init__(self, url: str, image_filename: str):
+        super().__init__(image_filename[:image_filename.rfind('.')], url, image_filename)
+
+        if "/a/" in url or "/gallery/" in url:
+            self.album_id = extract_imgur_id_from_url(url)
+        else:
+            self.album_id = None
+
+        self.local_file_name = ImgurImage._file_name_pattern % (
+            self.created, self.image_file)
+

@@ -5,6 +5,7 @@ import sys
 
 from argparsers import parse_args
 from drivers.fourchan import fourchan_downloader
+from drivers.imgursite import imgursite_downloader
 from drivers.reddit import reddit_downloader
 from utils.utils import prepare_download_folder
 
@@ -20,6 +21,8 @@ def main():
         reddit_downloader(args)
     elif args.site == "4chan":
         fourchan_downloader(args)
+    elif args.site == "imgur":
+        imgursite_downloader(args)
     else:
         raise NotImplementedError
 

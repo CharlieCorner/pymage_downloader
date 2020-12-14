@@ -4,7 +4,7 @@ from abc import abstractmethod
 from bs4 import BeautifulSoup
 
 from api.imgur.imgur_api import ImgurAPI
-from models.image import RedditPostImage
+from models.image import RedditPostImage, ImgurImage
 from parsers.base_parser import BaseParser
 from utils.utils import *
 
@@ -110,7 +110,16 @@ class ImgurHTMLParser(ImgurBaseParser):
 class ImgurAPIParser(ImgurBaseParser):
 
     def get_images(self, post) -> list:
-        url = post.url
+
+        is_reddit_post = True
+
+        # If we are using the direct Imgur download, and a URL is passed, let's try to use this as the URL
+        if isinstance(post, str):
+            url = post
+            is_reddit_post = False
+        else:
+            url = post.url
+
         # First check if it is a direct URL so that we avoid querying the API
         if ImgurAPIParser.is_imgur_direct_url(url):
             return [ImgurAPIParser.get_image_from_direct_url(post)]
@@ -119,6 +128,9 @@ class ImgurAPIParser(ImgurBaseParser):
         image_entities = []
 
         for u in urls:
-            image_entities.append(RedditPostImage(u, post, ImgurAPIParser.get_file_name_from_url(u)))
+            if is_reddit_post:
+                image_entities.append(RedditPostImage(u, post, ImgurAPIParser.get_file_name_from_url(u)))
+            else:
+                image_entities.append(ImgurImage(u, ImgurAPIParser.get_file_name_from_url(u)))
 
         return image_entities
