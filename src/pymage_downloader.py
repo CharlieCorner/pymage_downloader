@@ -5,7 +5,6 @@ import sys
 
 from argparsers import parse_args
 from downloaders.downloader_factory import DownloaderFactory
-from downloaders.reddit import reddit_downloader
 from utils.utils import prepare_download_folder
 
 LOGGER = logging.getLogger(__name__)
@@ -16,16 +15,12 @@ def main():
     configure_logging(args.is_debug)
     prepare_download_folder(args.folder)
 
-    if args.site == "reddit":
-        reddit_downloader(args)
+    downloader = DownloaderFactory.get_downloader(args)
 
-    else:
-        downloader = DownloaderFactory.get_downloader(args)
+    if not downloader:
+        raise NotImplementedError("No suitable downloader was found!")
 
-        if not downloader:
-            raise NotImplementedError("No suitable downloader was found!")
-
-        downloader.download(args)
+    downloader.download(args)
 
 
 def configure_logging(is_debug=False):

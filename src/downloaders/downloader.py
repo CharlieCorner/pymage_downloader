@@ -1,7 +1,6 @@
 import glob
 import logging
 import os
-from abc import abstractmethod
 from argparse import Namespace
 
 from exceptions.pymage_exceptions import NotAbleToDownloadException
@@ -23,7 +22,6 @@ class Downloader:
         self.parser = None
         self.args = None
 
-    @abstractmethod
     def download(self, args: Namespace):
 
         self.args = args
@@ -44,7 +42,6 @@ class Downloader:
 
         LOGGER.info("The downloader is done!")
 
-    @abstractmethod
     def _filter_existent_images(self, images: list) -> list:
         new_images = []
 
